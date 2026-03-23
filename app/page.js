@@ -409,10 +409,32 @@ function Dashboard({ user }) {
         {/* Ledger Tab */}
         {activeTab === "ledger" && (
           <div style={{ background: BG2, border: `1px solid ${BORDER}` }}>
-            <div style={{ padding: "10px 16px", borderBottom: `1px solid ${BORDER}`, display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 9, color: MUTED, letterSpacing: 2 }}>FULL LEDGER</span>
-              <span style={{ fontSize: 9, color: MUTED }}>{transactions.length} entries</span>
-            </div>
+            <div style={{ padding: "10px 16px", borderBottom: `1px solid ${BORDER}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+  <span style={{ fontSize: 9, color: MUTED, letterSpacing: 2 }}>FULL LEDGER</span>
+  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <span style={{ fontSize: 9, color: MUTED }}>{transactions.length} entries</span>
+    <button className="ss-btn" onClick={() => {
+      const headers = ["Date", "Title", "Type", "Category", "Amount"];
+      const rows = transactions.map(t => [
+        new Date(t.created_at).toLocaleDateString(),
+        t.title,
+        t.type,
+        t.category,
+        t.type === "income" ? `+${t.amount}` : `-${t.amount}`
+      ]);
+      const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "spendsmart-transactions.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }} style={{ padding: "4px 10px", background: "transparent", color: GOLD, border: `1px solid ${GOLD}40`, fontSize: 9, cursor: "pointer", fontFamily: "inherit", letterSpacing: 1 }}>
+      ↓ EXPORT CSV
+    </button>
+  </div>
+</div>
             {loading ? (
               <div style={{ padding: "40px", textAlign: "center", fontSize: 11, color: MUTED }}>LOADING...</div>
             ) : transactions.length === 0 ? (
